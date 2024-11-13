@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "encoders.h"
+#include "adc.h"
 
 class Motors;
 extern Motors motors;
@@ -259,8 +260,17 @@ public:
   int calculate_pwm(float desired_percentage)
   {
     int pwm = MAX_MOTOR_PERCENTAGE * PWM_RESOLUTION * desired_percentage / 10000;
+    pwm = batteryCompPWM(pwm);
     return pwm;
   }
+
+  int batteryCompPWM(int pwm) {
+    int adjustedPWM = pwm * adc.getCompensationFactor();
+    if (adjustedPWM>PWM_RESOLUTION){
+      adjustedPWM = PWM_RESOLUTION;
+    }
+    return adjustedPWM;
+}
 
   // mainly for using in the calibration class
   void coast()

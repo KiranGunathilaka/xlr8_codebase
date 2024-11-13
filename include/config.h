@@ -5,19 +5,19 @@
 
 //*******************************************************Motors****************************************************************
 
-const int LeftEncoderPin1 = 18;
-const int LeftEncoderPin2 = 8;
+const int LeftEncoderPin1 = 35;
+const int LeftEncoderPin2 = 45;
 
 const int RightEncoderPin1 = 48;
-const int RightEncoderPin2 = 45;
+const int RightEncoderPin2 = 47;
 
 // motor controller 1
-const int LEFT_MOTOR_PWM = 17;
-const int LEFT_MOTOR_IN1 = 15;
-const int LEFT_MOTOR_IN2 = 16;
-const int RIGHT_MOTOR_IN2 = 5;
-const int RIGHT_MOTOR_IN1 = 6;
-const int RIGHT_MOTOR_PWM = 4;
+const int LEFT_MOTOR_PWM = 42;
+const int LEFT_MOTOR_IN1 = 41;
+const int LEFT_MOTOR_IN2 = 40;
+const int RIGHT_MOTOR_IN2 = 39;
+const int RIGHT_MOTOR_IN1 = 37;
+const int RIGHT_MOTOR_PWM = 36;
 
 
 const int PULSES_PER_ROTATION = 1495; // encoder pulse count for rotation, all have same values for 20 rotations (1494, 1495, 1496, 1497 averages)
@@ -55,6 +55,8 @@ const float MIN_MOTOR_PERCENTAGE = 5; // when the given percentage is below this
 const float STEERING_KP = 1.0;
 const float STEERING_KD = 1.0;
 
+const int SENSOR_PINS[] = {4, 5, 6, 7, 15, 16, 17, 18, 8, 3, 9 ,10, 11, 12, 13 ,14};
+const int SENSOR_COUNT = 16;
 //*************************************************************CALIBRATION******************************************
 
 static const int SAMPLES_PER_CALIBRATION = 100;
@@ -74,3 +76,21 @@ const int ALPHA = 3600;
 
 const int RUN_SPEED = 70;
 const int RUN_ACC = 1000;
+
+//***********************************************************Reporting***********************************************
+
+#define TX_PIN 2
+#define RX_PIN 46
+
+//**********************************************************ADC*******************************************************
+
+#define BATTERY_PIN 19
+
+const float REF_VOLTAGE = 3.3;
+const float BAT_ADC_LEVELS = 4095;
+const float VOLTAGE_DIVIDER_RATIO = 0.25;
+
+const int MOVING_FILTER_SIZE = 10;
+
+const float NOMINAL_VOLTAGE = 7.4;
+const float MIN_VOLTAGE = 7.0;
