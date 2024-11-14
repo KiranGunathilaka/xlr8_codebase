@@ -12,15 +12,7 @@ extern Calibaration calibaration;
 class Calibaration
 {
 private:
-    // Struct to hold RGB and Lux readings
-    struct ColorReading
-    {
-        float r_ratio;
-        float g_ratio;
-        float b_ratio;
-        uint16_t lux;
-    };
-
+    // variables for motor feed forward calibaration
     const int SAMPLES_PER_PERCENTAGE = 50; // Number of samples to average for each percentage
     const int STABILIZE_DELAY = 500;       // Time in ms to wait for motor speed to stabilize
     const float PERCENTAGE_STEP = 1.0;     // Step size for percentage increments
@@ -52,8 +44,8 @@ public:
 
         for (int i = 0; i < SAMPLES_PER_PERCENTAGE; i++)
         {
-            l_sum += abs((float) encoders.leftRPS());
-            r_sum += abs((float) encoders.rightRPS());
+            l_sum += abs((float)encoders.leftRPS());
+            r_sum += abs((float)encoders.rightRPS());
             delay(20); // Small delay between samples
         }
 
@@ -98,8 +90,8 @@ public:
         Serial.println("Calibration complete!");
     }
 
-    // Don't need to move this function to the printer class, as this will be only used one time for the entire project 
-    //unless current limited power sources and motors didn't change
+    // Don't need to move this function to the printer class, as this will be only used one time for the entire project
+    // unless current limited power sources and motors didn't change
     void printMotorData(const MotorData &data)
     {
         char buffer[100];
@@ -109,5 +101,39 @@ public:
                  data.rps_left,
                  data.rps_right);
         Serial.println(buffer);
+    }
+
+    // Auto-calibration function, this will be called in the sensors.begin()
+    void sensorAutoCalibrate(int duration_ms = 4000)
+    {
+        unsigned long startTime = millis();
+
+        // Initialising the arrays or Clearing the previous calibration
+        for (int i = 0; i < SENSOR_COUNT; i++)
+        {
+            sensors.minValues[i] = 4095;
+            sensors.maxValues[i] = 0;
+        }
+
+        // Collecting samples for specified duration
+        while (millis() - startTime < duration_ms)
+        {
+            for (int i = 0; i < SENSOR_COUNT; i++)
+            {
+                uint16_t value = analogRead(SENSOR_PINS[i]);
+                // chosing the minimum and maximum value, get read for each sensor
+                sensors.minValues[i] = min(sensors.minValues[i], value);
+                sensors.maxValues[i] = max(sensors.maxValues[i], value);
+            }
+            delay(2);
+        }
+
+        // Calculate the black, white differentiating thresholds
+        for (int i = 0; i < SENSOR_COUNT; i++)
+        {
+            // Setting threshold above minimum by some percentage to avoid noise
+            uint16_t threshold = sensors.minValues[i] + (sensors.maxValues[i] - sensors.minValues[i]) * THRESHOLD_PERCENTAGE;
+            sensors.thresholds[i] = map(threshold, sensors.minValues[i], sensors.maxValues[i], 0 , 1000 );
+        }
     }
 };

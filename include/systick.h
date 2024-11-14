@@ -6,6 +6,7 @@
 #include "sensors.h"
 #include "Ticker.h"
 #include "printer.h"
+#include "motion.h"
 #include "config.h"
 
 class Systick;
@@ -31,9 +32,9 @@ public:
                       {
                           encoders.update();
                           sensors.update();
-                          motors.update(0.0, 0.0, 0);
+                          motors.update(motion.velocity(), motion.omega(), sensors.get_steering_adjustment());
 
-                          printer.printTimeDiff();
+                        //   printer.printTimeDiff();
                         //   printer.printEncoderCounts();
                         //   printer.printSteeringAdjustment(false);
                         //   printer.printMotorFeedPercentages(true);
