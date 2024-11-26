@@ -12,96 +12,137 @@ extern Robot robot;
 class Robot
 {
 public:
+    bool crossEncountered = false;
+    bool turnEncountered = false;
+
     void run()
     {
-        sensors.set_steering_mode(STEERING_OFF);
 
-        LineFeature feature = sensors.detectFeature();
-
-        switch (feature)
+        while (true)
         {
-        case STRAIGHT_LINE:
-            // Normal line following
-            sensors.set_steering_mode(STEER_NORMAL);
-            followLine();
-            break;
+            LineFeature feature = sensors.detectFeature();
 
-        case LEFT_TURN:
-            handleLeftTurn();
-            break;
+            switch (feature)
+            {
+            case STRAIGHT_LINE:
+                // Normal line following
+                followLineUntilFeature();
+                break;
 
-        case RIGHT_TURN:
-            handleRightTurn();
-            break;
+            case LEFT_TURN:
+                turnLeft();
+                break;
 
-        case T_JUNCTION:
-            handleTJunction();
-            break;
+            case RIGHT_TURN:
+                turnRight();
+                break;
 
-        case CROSS_JUNCTION:
-            handleCrossJunction();
-            break;
+            case T_JUNCTION:
+                handleTJunction();
+                break;
 
-        case END_OF_LINE:
-            handleEndOfLine();
-            break;
+            case CROSS_JUNCTION:
+                handleCrossJunction();
+                break;
 
-        case NO_LINE:
-            handleNoLine();
-            break;
+            case NO_LINE:
+                handleNoLine();
+                break;
+            }
         }
     }
 
-    void followLine()
+    void followLineUntilFeature()
     {
-        
+        sensors.set_steering_mode(STEER_NORMAL);
+        motion.reset_drive_system();
+        motion.start_move(GO_FORWARD_DISTANCE, RUN_SPEED, RUN_SPEED, RUN_ACC);
+        while (!motion.move_finished())
+        {
+            delay(LOOP_TIME * 1000);
+
+            // if they detect a front wall, decelerate only to cover the remaining position
+            if (sensors.detectFeature() != STRAIGHT_LINE)
+                ;
+            {
+                break;
+            }
+        }
     }
 
-    // Example motor control function
-    void setMotors(int leftSpeed, int rightSpeed)
+    void turnLeft()
     {
-        // Implement based on your motor driver
-        // analogWrite(LEFT_MOTOR_PIN, abs(leftSpeed));
-        // analogWrite(RIGHT_MOTOR_PIN, abs(rightSpeed));
-        // Set direction pins based on speed sign
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_turn(-90, OMEGA, 0, ALPHA);
+
+        while (!motion.turn_finished())
+        {
+            delay(LOOP_TIME * 1000);
+        }
     }
 
-    // Implement these based on your competition rules
-    void handleLeftTurn()
+    void turnRight()
     {
-        // Example: Take sharp left turn
-        setMotors(-100, 100);
-        delay(100);
-    }
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_turn(90, OMEGA, 0, ALPHA);
 
-    void handleRightTurn()
-    {
-        // Example: Take sharp right turn
-        setMotors(100, -100);
-        delay(100);
+        while (!motion.turn_finished())
+        {
+            delay(LOOP_TIME * 1000);
+        }
     }
 
     void handleTJunction()
     {
-        // Example: Default to left turn
-        handleLeftTurn();
+        turnLeft();
     }
+
+    //3 types of t junction
 
     void handleCrossJunction()
     {
-        // Example: Continue straight
-        setMotors(200, 200);
-    }
-
-    void handleEndOfLine()
-    {
-        // Example: Stop and wait
-        setMotors(0, 0);
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move(GO_FORWARD_JUNCTION_DISTANCE, RUN_SPEED, RUN_SPEED, RUN_ACC);
+        while (!motion.move_finished())
+        {
+            delay(LOOP_TIME * 1000);
+        }
     }
 
     void handleNoLine()
+    {   
+        bool lineDetected = false;
+
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_move(CHECK_DASH_DISTANCE, RUN_SPEED, RUN_SPEED, RUN_ACC);
+        while (!motion.move_finished())
+        {
+            delay(LOOP_TIME*1000);
+
+            if (sensors.detectFeature() != NO_LINE){
+                lineDetected = true;
+                break;
+            }
+        }
+
+        if (!lineDetected){
+            turn_180();
+        }
+    }
+
+    void turn_180()
     {
-        // Example: Search for line
-        setMotors(-100, 100); // Rotate in place
+        sensors.set_steering_mode(STEERING_OFF);
+        motion.reset_drive_system();
+        motion.start_turn(180 , OMEGA, 0, ALPHA);
+
+        while (!motion.turn_finished())
+        {
+            delay(LOOP_TIME);
+        }
     }
 };

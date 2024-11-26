@@ -27,7 +27,6 @@ enum LineFeature
     RIGHT_TURN,
     T_JUNCTION,
     CROSS_JUNCTION,
-    END_OF_LINE,
     NO_LINE
 };
 
@@ -185,9 +184,6 @@ public:
         if ((line_pattern & 0x00FF) && activeSensors > 3)
             return RIGHT_TURN;
 
-        if (activeSensors < 2)
-            return END_OF_LINE;
-        
         return STRAIGHT_LINE;
     }
 

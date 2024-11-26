@@ -63,7 +63,7 @@ const float THRESHOLD_PERCENTAGE = 0.2;
 
 //*************************************************************SYSTICK*******************************************
 
-#define LOOP_TIME 0.027
+#define LOOP_TIME 0.020
 
 //**************************************************************ROBOT*********************************************
 
@@ -92,3 +92,9 @@ const float NOMINAL_VOLTAGE = 7.4;
 const float MIN_VOLTAGE = 7.0;
 
 const int SWITCH_PIN = 7;
+
+//********************************************************ROBOT******************************************************
+
+const int GO_FORWARD_DISTANCE = 3000;
+const int GO_FORWARD_JUNCTION_DISTANCE = 40;
+const int CHECK_DASH_DISTANCE = 40;
